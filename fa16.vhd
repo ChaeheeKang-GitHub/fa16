@@ -1,54 +1,41 @@
+Library ieee;
+use ieee.std_logic_1164.all;
+
+entity adder16 is
+	port ( Cin, x, y	: in std_logic;
+		s, Cout		: out std_logic );
+end entity adder16;
+
+
+architecture fa16_logic of adder16 is
+signal tmp_s : std_logic;
+begin
+	tmp_s <= (x and not y and not Cin) or (x and y and Cin) or (not x and y and not Cin) or (not x and not y and Cin);
+	Cout <= (x and cin) or (y and cin) or (x and y);
+end architecture fa16_logic;
+
 library ieee;
 use ieee.std_logic_1164.all;
 
 entity fa16 is
+	Generic ( n : Integer:= 16);
 	port ( cin : in std_logic;
-		a0,b0,a1,b1 : in std_logic;
-		a2,b2,a3,b3 : in std_logic;
-		a4,b4,a5,b5 : in std_logic;
-		a6,b6,a7,b7 : in std_logic;
-		a8,b8,a9,b9 : in std_logic;
-		a10,b10,a11,b11 : in std_logic;
-		a12,b12,a13,b13 : in std_logic;
-		a14,b14,a15,b15 : in std_logic;
-		s0,s1,s2,s3 : out std_logic;
-		s4,s5,s6,s7 : out std_logic;
-		s8,s9,s10,s11 : out std_logic;
-		s12,s13,s14,s15 : out std_logic;
+		a,b : in std_logic_vector(n-1 Downto 0);
+		sum : out std_logic_vector(n-1 Downto 0);
 		cout : out std_logic );
 end entity fa16;
 
 architecture arch_fa16 of fa16 is
-	signal c0,c1,c2,c3 : std_logic;
-	signal c4,c5,c6,c7 : std_logic;
-	signal c8,c9,c10,c11 : std_logic;
-	signal c12,c13,c14,c15 : std_logic;
-	
+	signal c : std_logic_vector(1 to n-1);	
 	component fa16_adder is
-		port( cin : in std_logic;
-		a : in std_logic;
-		b : in std_logic;
-		s : out std_logic;
-		cout : out std_logic);
-	end component fa16_adder;
+		port( cin, x, y: in std_logic;
+		s, cout : out std_logic);
+	end component;
 begin
-	c0<='0';
-	
-	map_0 : fa16_adder port map ( cin, a0, b0, s0, c1);
-	map_1 : fa16_adder port map ( c1, a1, b1, s1, c2);
-	map_2 : fa16_adder port map ( c2, a2, b2, s2, c3);
-	map_3 : fa16_adder port map ( c3, a3, b3, s3, c4);
-	map_4 : fa16_adder port map ( c4, a4, b4, s4 ,c5);
-	map_5 : fa16_adder port map ( c5, a5, b5, s5 ,c6);
-	map_6 : fa16_adder port map ( c6, a6, b6, s5 ,c7);
-	map_7 : fa16_adder port map ( c7, a7, b7, s5 ,c8);
-	map_8 : fa16_adder port map ( c8, a8, b8, s5 ,c9);
-	map_9 : fa16_adder port map ( c9, a9, b9, s5 ,c10);
-	map_10 : fa16_adder port map ( c10, a10, b10, s5 ,c11);
-	map_11 : fa16_adder port map ( c11, a11, b11, s5 ,c12);
-	map_12 : fa16_adder port map ( c12, a12, b12, s5 ,c13);
-	map_13 : fa16_adder port map ( c13, a13, b13, s5 ,c14);
-	map_14 : fa16_adder port map ( c14, a14, b14, s5 ,c15);
-	map_15 : fa16_adder port map ( c15, a15,b15,s15,cout);
+	fa_0 : fa16_adder port map ( cin,a(0),b(0),sum(0),c(1));	
+	g_1 : for i in 1 to n-2 Generate
+		fa_i : fa16_adder port map ( c(i),a(i),b(i),sum(i),c(i+1));
+	end Generate;
+	fa_n : fa16_adder port map (c(n-1),a(n-1),b(n-1),sum(n-1),cout);
 
 end architecture arch_fa16;
